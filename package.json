@@ -20,6 +20,8 @@
     ]
   },
   "dependencies": {
+    "@ant-design/icons": "^4.3.0",
+    "antd": "^4.10.2",
     "bcrypt": "^5.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.11",
