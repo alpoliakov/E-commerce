@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { PageHeader, Tabs, Badge, Dropdown, Button, Divider, Menu } from 'antd';
 import { ShoppingCartOutlined, UserAddOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { DataContext } from '../store/GlobalState';
+import Cookie from 'js-cookie';
 
 const { TabPane } = Tabs;
 
@@ -11,49 +13,68 @@ const Home = (
   </Link>
 );
 
-const menu = (
-  <Menu>
-    <Menu.Item key="profile">
-      <Link href="/view">
-        <a>View</a>
-      </Link>
-    </Menu.Item>
-    <Menu.Divider />
-    <Menu.Item key="edit">
-      <Link href="/edit">
-        <a>Edit</a>
-      </Link>
-    </Menu.Item>
-    <Menu.Divider />
-    <Menu.Item key="logout">
-      <a type="button">Logout</a>
-    </Menu.Item>
-  </Menu>
-);
-
-const SignIn = (
-  <Link href="/signin" key="2">
-    <a style={{ fontSize: 21, textAlign: 'center' }}>
-      <UserAddOutlined /> Sign in
-    </a>
-  </Link>
-);
-
-const Profile = (
-  <Dropdown overlay={menu} placement="bottomCenter" key="3">
-    <Button
-      type="link"
-      style={{ fontSize: 21, textAlign: 'center' }}
-      onClick={(e) => e.preventDefault()}>
-      <UserSwitchOutlined /> My Profile
-    </Button>
-  </Dropdown>
-);
+const SignIn = () => {
+  return (
+    <Link href="/signin" key="2">
+      <a style={{ fontSize: 21, textAlign: 'center' }}>
+        <UserAddOutlined /> Sign in
+      </a>
+    </Link>
+  );
+};
 
 export default function NavBar() {
   // eslint-disable-next-line no-unused-vars
-  const [login, setLogin] = useState(false);
-  const user = login ? Profile : SignIn;
+  const { state, dispatch } = useContext(DataContext);
+  const { auth } = state;
+  // const user = Object.keys(auth).length === 0 ? Profile : SignIn;
+
+  const handleLogout = () => {
+    Cookie.remove('refreshtoken', { path: 'api/auth/accessToken' });
+    localStorage.removeItem('firstLogin');
+    dispatch({ type: 'AUTH', payload: {} });
+    dispatch({ type: 'NOTIFY', payload: { success: 'Logged out!' } });
+    setTimeout(() => {
+      dispatch({ type: 'NOTIFY', payload: {} });
+    }, 2000);
+  };
+
+  const menu = (
+    <Menu>
+      <Menu.Item key="view">
+        <Link href="/view">
+          <a>View</a>
+        </Link>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="edit">
+        <Link href="/edit-profile">
+          <a>Edit</a>
+        </Link>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="logout">
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid,jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+        <a type="button" onClick={handleLogout}>
+          Logout
+        </a>
+      </Menu.Item>
+    </Menu>
+  );
+
+  // eslint-disable-next-line react/prop-types
+  const Profile = ({ name }) => {
+    return (
+      <Dropdown overlay={menu} placement="bottomCenter" key="3">
+        <Button
+          type="link"
+          style={{ fontSize: 21, textAlign: 'center' }}
+          onClick={(e) => e.preventDefault()}>
+          <UserSwitchOutlined /> Hi, {name}
+        </Button>
+      </Dropdown>
+    );
+  };
 
   return (
     <PageHeader
@@ -71,7 +92,11 @@ export default function NavBar() {
           </Link>
         </Badge>,
         <Divider type="vertical" key="4" />,
-        user,
+        Object.keys(auth).length === 0 ? (
+          <SignIn key="signin" />
+        ) : (
+          <Profile key="profile" name={auth.user.name} />
+        ),
       ]}
       footer={
         <Tabs defaultActiveKey="1">

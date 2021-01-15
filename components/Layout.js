@@ -2,6 +2,7 @@ import React from 'react';
 import NavBar from './NavBar';
 import Head from 'next/head';
 import style from '../styles/Layout.module.css';
+import Notify from './Notify';
 
 // eslint-disable-next-line react/prop-types
 function Layout({ children }) {
@@ -13,6 +14,7 @@ function Layout({ children }) {
         <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
       </Head>
       <NavBar />
+      <Notify />
       <div className={style.container}>{children}</div>
     </div>
   );
