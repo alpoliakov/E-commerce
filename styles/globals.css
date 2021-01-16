@@ -14,3 +14,11 @@ a {
 * {
   box-sizing: border-box;
 }
+
+img {
+  object-fit: cover;
+  object-position: 0 20%;
+}
+
+@import "product.css";
+@import "detail-product.css";

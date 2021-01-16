@@ -1,0 +1,23 @@
+.products {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+	justify-content: center;
+	margin: 20px 0;
+	width: 100%;
+}
+
+.products .card {
+	margin: 10px auto;
+}
+
+.products .card__img {
+	height: 250px;
+	width: 100%;
+}
+
+.products .card__title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-transform: capitalize;
+}

@@ -80,7 +80,6 @@ export default function NavBar() {
     <PageHeader
       className="site-page-header-responsive"
       style={{ position: 'sticky', zIndex: 1, width: '100%' }}
-      onBack={() => window.history.back()}
       title={Home}
       subTitle="This is a subtitle"
       extra={[
