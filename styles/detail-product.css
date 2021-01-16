@@ -3,3 +3,21 @@
 	height: 86vh;
 	margin-top: 40px;
 }
+
+.img__detail_product {
+	padding: 2px;
+	border: 1px solid rgba(68, 85, 102, .4);
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.img__active {
+	border: 2px solid #fa8c16;
+}
+
+.container__detail .detail__title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-transform: capitalize;
+}

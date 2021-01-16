@@ -30,9 +30,9 @@ const ProductItem = ({ product }) => {
       cover={<img src={product.images[0].url} alt={product.title} className="card__img" />}
       className="card"
       actions={[
-        <EyeOutlined key="view" onClick={ViewProduct} />,
-        <HeartOutlined key="heart" />,
-        <ShoppingCartOutlined key="cart" onClick={AddToCart} />,
+        <EyeOutlined key="view" style={{ fontSize: 18 }} onClick={ViewProduct} />,
+        <HeartOutlined key="heart" style={{ fontSize: 18 }} />,
+        <ShoppingCartOutlined key="cart" style={{ fontSize: 18 }} onClick={AddToCart} />,
       ]}>
       <Meta className="card__text" title={TitleProduct} description={product.description} />
       <Divider />
