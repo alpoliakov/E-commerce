@@ -4,6 +4,7 @@ import { ShoppingCartOutlined, UserAddOutlined, UserSwitchOutlined } from '@ant-
 import Link from 'next/link';
 import { DataContext } from '../store/GlobalState';
 import Cookie from 'js-cookie';
+import { useRouter } from 'next/router';
 
 const { TabPane } = Tabs;
 
@@ -26,7 +27,8 @@ const SignIn = () => {
 export default function NavBar() {
   // eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useContext(DataContext);
-  const { auth } = state;
+  const { auth, cart } = state;
+  const router = useRouter();
   // const user = Object.keys(auth).length === 0 ? Profile : SignIn;
 
   const handleLogout = () => {
@@ -36,24 +38,19 @@ export default function NavBar() {
     dispatch({ type: 'NOTIFY', payload: { success: 'Logged out!' } });
     setTimeout(() => {
       dispatch({ type: 'NOTIFY', payload: {} });
+      router.push('/');
     }, 2000);
   };
 
   const menu = (
     <Menu>
-      <Menu.Item key="view">
-        <Link href="/view">
-          <a>View</a>
+      <Menu.Item key="edit" align="center">
+        <Link href="/profile">
+          <a>Edit profile</a>
         </Link>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="edit">
-        <Link href="/edit-profile">
-          <a>Edit</a>
-        </Link>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout">
+      <Menu.Item key="logout" align="center">
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid,jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <a type="button" onClick={handleLogout}>
           Logout
@@ -83,7 +80,7 @@ export default function NavBar() {
       title={Home}
       subTitle="This is a subtitle"
       extra={[
-        <Badge count={0} showZero key="1">
+        <Badge count={cart.length} key="1">
           <Link href="/cart">
             <a style={{ fontSize: 21, textAlign: 'center' }}>
               <ShoppingCartOutlined /> Cart

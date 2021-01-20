@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { getData } from '../../utils/fetchData';
 import PropTypes from 'prop-types';
 import { Image, Row, Col, Card, Divider, Space, Typography } from 'antd';
 import uuid from 'react-uuid';
 import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { DataContext } from '../../store/GlobalState';
+import { addToCart } from '../../store/Actions';
 
 const { Meta } = Card;
 const { Title, Text } = Typography;
@@ -12,10 +14,8 @@ const { Title, Text } = Typography;
 const DetailProduct = (props) => {
   const [product] = useState(props.product);
   const [tab, setTab] = useState(0);
-
-  const AddToCart = () => {
-    console.log('Hello');
-  };
+  const { state, dispatch } = useContext(DataContext);
+  const { cart } = state;
 
   const isActive = (index) => {
     if (tab === index) {
@@ -57,7 +57,12 @@ const DetailProduct = (props) => {
           <Card
             actions={[
               <HeartOutlined key="heart" style={{ fontSize: 22 }} />,
-              <ShoppingCartOutlined key="cart" style={{ fontSize: 22 }} onClick={AddToCart} />,
+              <ShoppingCartOutlined
+                key="cart"
+                style={{ fontSize: 22 }}
+                onClick={() => dispatch(addToCart(product, cart))}
+                disabled={product.inStock === 0 ? true : false}
+              />,
             ]}>
             <Meta
               className="card__text"

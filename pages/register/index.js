@@ -170,10 +170,10 @@ const Register = () => {
         </Form.Item>
 
         <Form.Item {...tailFormItemLayout}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" block>
             Register
           </Button>
-          <Divider type="vertical" />
+          <Divider />
           Or{' '}
           <Link href="/signin">
             <a>Login now!</a>

@@ -13,6 +13,8 @@ class MyDocument extends Document {
           />
           <meta name="keywords" content="e-commerce, app, cosmetic" />
           <meta name="description" content="E-commerce website with Next.js" />
+          <script
+            src={`https://www.paypal.com/sdk/js?client-id=${process.env.PAYPAL_CLIENT_ID}`}></script>
         </Head>
         <body>
           <Main />

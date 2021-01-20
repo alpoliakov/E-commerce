@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Card, Divider, Typography, Space } from 'antd';
 import PropTypes from 'prop-types';
 import { ShoppingCartOutlined, HeartOutlined, EyeOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
+import { DataContext } from '../../store/GlobalState';
+import { addToCart } from '../../store/Actions';
 
 const { Meta } = Card;
 const { Text, Title } = Typography;
@@ -14,13 +16,11 @@ const ProductItem = ({ product }) => {
     </Title>
   );
   const router = useRouter();
+  const { state, dispatch } = useContext(DataContext);
+  const { cart } = state;
 
   const ViewProduct = () => {
     router.push(`product/${product._id}`);
-  };
-
-  const AddToCart = () => {
-    console.log(product._id);
   };
 
   return (
@@ -32,7 +32,12 @@ const ProductItem = ({ product }) => {
       actions={[
         <EyeOutlined key="view" style={{ fontSize: 18 }} onClick={ViewProduct} />,
         <HeartOutlined key="heart" style={{ fontSize: 18 }} />,
-        <ShoppingCartOutlined key="cart" style={{ fontSize: 18 }} onClick={AddToCart} />,
+        <ShoppingCartOutlined
+          key="cart"
+          style={{ fontSize: 18 }}
+          onClick={() => dispatch(addToCart(product, cart))}
+          disabled={product.inStock === 0 ? true : false}
+        />,
       ]}>
       <Meta className="card__text" title={TitleProduct} description={product.description} />
       <Divider />
