@@ -1,11 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import { postData } from '../../utils/fetchData';
+import React, { useEffect, useRef, useContext } from 'react';
+// eslint-disable-next-line no-unused-vars
+import { patchData } from '../utils/fetchData';
+import { DataContext } from '../store/GlobalState';
+import PropTypes from 'prop-types';
+import { updateItem } from '../store/Actions';
 
 // eslint-disable-next-line react/prop-types,no-unused-vars
-const PaypalBtn = ({ total, address, mobile, state, dispatch }) => {
+const PaypalBtn = ({ order }) => {
   const refPaypalBtn = useRef();
-  // eslint-disable-next-line no-unused-vars,react/prop-types
-  const { cart, auth, orders } = state;
+  const { state, dispatch } = useContext(DataContext);
+  const { auth, orders } = state;
 
   useEffect(() => {
     // eslint-disable-next-line no-undef
@@ -17,7 +21,7 @@ const PaypalBtn = ({ total, address, mobile, state, dispatch }) => {
             purchase_units: [
               {
                 amount: {
-                  value: total,
+                  value: order.total,
                 },
               },
             ],
@@ -28,19 +32,23 @@ const PaypalBtn = ({ total, address, mobile, state, dispatch }) => {
           return actions.order.capture().then(function (details) {
             dispatch({ type: 'NOTIFY', payload: { loading: true } });
             // eslint-disable-next-line react/prop-types
-            postData('order', { address, mobile, cart, total }, auth.token).then((res) => {
+            patchData(`order/${order._id}`, null, auth.token).then((res) => {
               if (res.err) {
                 return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
               }
 
-              dispatch({ type: 'ADD_CART', payload: [] });
-
-              const newOrder = {
-                ...res.newOrder,
-                // eslint-disable-next-line react/prop-types
-                user: auth.user,
-              };
-              dispatch({ type: 'ADD_ORDERS', payload: [...orders, newOrder] });
+              dispatch(
+                updateItem(
+                  orders,
+                  order._id,
+                  {
+                    ...order,
+                    paid: true,
+                    dateOfPayment: new Date().toISOString(),
+                  },
+                  'ADD_ORDERS',
+                ),
+              );
 
               return dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
             });
@@ -53,6 +61,10 @@ const PaypalBtn = ({ total, address, mobile, state, dispatch }) => {
   }, []);
 
   return <div ref={refPaypalBtn}></div>;
+};
+
+PaypalBtn.propTypes = {
+  order: PropTypes.object,
 };
 
 export default PaypalBtn;

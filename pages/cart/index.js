@@ -26,20 +26,23 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { increase, decrease, remove } from '../../store/Actions';
-import { getData } from '../../utils/fetchData';
-import PaypalBtn from '../paypalBtn';
+import { getData, postData } from '../../utils/fetchData';
+import { useRouter } from 'next/router';
 
 const { Title, Text } = Typography;
 
 const Cart = () => {
   const { state, dispatch } = useContext(DataContext);
-  const { cart, auth } = state;
+  const { cart, auth, orders } = state;
+
   const [total, setTotal] = useState(0);
   const [data, setData] = useState([]);
   const [address, setAddress] = useState('');
   const [mobile, setMobile] = useState('');
-  const [payment, setPayment] = useState(false);
+  const [callback, setCallback] = useState(false);
+
   const { confirm } = Modal;
+  const router = useRouter();
 
   const showDeleteConfirm = (data, id, title) => {
     confirm({
@@ -207,9 +210,9 @@ const Cart = () => {
 
       updateCart();
     }
-  }, []);
+  }, [callback]);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!address || !mobile) {
       return dispatch({
         type: 'NOTIFY',
@@ -217,7 +220,41 @@ const Cart = () => {
       });
     }
 
-    setPayment(true);
+    let newCart = [];
+    for (const item of cart) {
+      const res = await getData(`product/${item._id}`);
+      if (res.product.inStock - item.quantity >= 0) {
+        newCart.push(item);
+      }
+    }
+
+    if (newCart.length < cart.length) {
+      setCallback(!callback);
+      return dispatch({
+        type: 'NOTIFY',
+        payload: { error: 'The product is out of stock or the quantity is insufficient.' },
+      });
+    }
+
+    dispatch({ type: 'NOTIFY', payload: { loading: true } });
+
+    postData('order', { address, mobile, cart, total }, auth.token).then((res) => {
+      if (res.err) {
+        return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+      }
+
+      dispatch({ type: 'ADD_CART', payload: [] });
+
+      const newOrder = {
+        ...res.newOrder,
+        user: auth.user,
+      };
+
+      dispatch({ type: 'ADD_ORDERS', payload: [...orders, newOrder] });
+      dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
+
+      return router.push(`/order/${res.newOrder._id}`);
+    });
   };
 
   if (!cart.length) {
@@ -279,22 +316,11 @@ const Cart = () => {
               </Title>
               <Divider />
               {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-              {payment ? (
-                <PaypalBtn
-                  total={total}
-                  address={address}
-                  mobile={mobile}
-                  state={state}
-                  dispatch={dispatch}
-                />
-              ) : (
-                // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                <Link href={auth.user ? '#' : '/signin'}>
-                  <Button type="primary" block onClick={handlePayment}>
-                    Proceed with payment
-                  </Button>
-                </Link>
-              )}
+              <Link href={auth.user ? '#' : '/signin'}>
+                <Button type="primary" block onClick={handlePayment}>
+                  Proceed with payment
+                </Button>
+              </Link>
             </Card>
           </Space>
         </Col>

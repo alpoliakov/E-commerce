@@ -90,6 +90,7 @@ const Profile = () => {
       date: order.createdAt,
       total: `$${order.total}`,
       delivered: order.delivered,
+      paid: order.paid,
     }));
   };
 
@@ -100,7 +101,7 @@ const Profile = () => {
       key: 'id',
       // eslint-disable-next-line react/display-name
       render: (text) => (
-        <Link href="/">
+        <Link href={`/order/${text}`}>
           <a>{text}</a>
         </Link>
       ),
@@ -129,17 +130,14 @@ const Profile = () => {
       },
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: 'Paid',
+      dataIndex: 'paid',
+      key: 'paid',
       align: 'center',
       // eslint-disable-next-line react/display-name
-      render: (records) => (
-        <Space size="middle">
-          <Link href={`/order/${records.id}`}>
-            <a>Details</a>
-          </Link>
-        </Space>
-      ),
+      render: (paid) => {
+        return paid ? <Tag color="green">paid</Tag> : <Tag color="volcano">not paid</Tag>;
+      },
     },
   ];
 
