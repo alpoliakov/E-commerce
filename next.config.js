@@ -8,5 +8,8 @@ module.exports = {
       "3Fq?Hrcw<tt]R$S9D(V^~_!+SgbH:k+5K[uva5TDWw7v.]^]MjTN[_m,LP}626w2?a3%N'[`7{:.<xP[",
     PAYPAL_CLIENT_ID:
       'ASvVPnasBnAUtivpGKpKVhoIIxNga3hTC_VzV14FTA7UsuLefnP-cFxpH2wlhg14JSgTO91eYI95vR9u',
+    CLOUD_UPDATE_PRESET: 'e-commerce',
+    CLOUD_NAME: 'dixialex',
+    CLOUD_API: 'https://api.cloudinary.com/v1_1/dixialex/image/upload',
   },
 };

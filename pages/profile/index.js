@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { DataContext } from '../../store/GlobalState';
 import Head from 'next/head';
-import { Card, Col, Row, Space, Typography, Form, Input, Button, Divider } from 'antd';
+import { Card, Col, Row, Space, Typography, Form, Input, Button, Divider, Table, Tag } from 'antd';
 import valid from '../../utils/validation';
 import { patchData } from '../../utils/fetchData';
+import Link from 'next/link';
 
 const { Title } = Typography;
 
@@ -20,7 +21,8 @@ const Profile = () => {
   const { name, password, confirm } = data;
 
   const { state, dispatch } = useContext(DataContext);
-  const { auth, notify } = state;
+  // eslint-disable-next-line no-unused-vars
+  const { auth, notify, orders } = state;
 
   useEffect(() => {
     if (auth.user) {
@@ -50,6 +52,10 @@ const Profile = () => {
 
       updatePassword();
     }
+
+    if (name !== auth.user.name) {
+      updateInfo();
+    }
   };
 
   const updatePassword = () => {
@@ -64,15 +70,90 @@ const Profile = () => {
     });
   };
 
+  const updateInfo = () => {
+    dispatch({ type: 'NOTIFY', payload: { loading: true } });
+    patchData('user', { name }, auth.token).then((res) => {
+      if (res.err) {
+        return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+      }
+
+      dispatch({ type: 'AUTH', payload: { token: auth.token, user: res.user } });
+
+      return dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
+    });
+  };
+
+  const getOrdersData = () => {
+    return orders.map((order) => ({
+      key: order._id,
+      id: order._id,
+      date: order.createdAt,
+      total: `$${order.total}`,
+      delivered: order.delivered,
+    }));
+  };
+
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      // eslint-disable-next-line react/display-name
+      render: (text) => (
+        <Link href="/">
+          <a>{text}</a>
+        </Link>
+      ),
+    },
+    {
+      title: 'Date',
+      dataIndex: 'date',
+      key: 'date',
+      align: 'center',
+      render: (text) => new Date(text).toLocaleDateString(),
+    },
+    {
+      title: 'Total',
+      dataIndex: 'total',
+      key: 'total',
+      align: 'center',
+    },
+    {
+      title: 'Delivered',
+      dataIndex: 'delivered',
+      key: 'delivered',
+      align: 'center',
+      // eslint-disable-next-line react/display-name
+      render: (delivered) => {
+        return delivered ? <Tag color="green">delivered</Tag> : <Tag color="volcano">pending</Tag>;
+      },
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      align: 'center',
+      // eslint-disable-next-line react/display-name
+      render: (records) => (
+        <Space size="middle">
+          <Link href={`/order/${records.id}`}>
+            <a>Details</a>
+          </Link>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <div style={{ width: '100%', marginTop: 40 }}>
       <Head>
         <title>Profile Page</title>
       </Head>
       <Row justify="center" align="center" gutter={[50, 30]}>
-        <Col xs={24} sm={24} md={20} xl={8} xxl={6}>
+        <Col xs={24} sm={22} md={18} xl={8} xxl={6}>
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Title level={2}>{auth.user.role === 'user' ? 'User Profile' : 'Admin Profile'}</Title>
+            <Title level={2} className="text-uppercase">
+              {auth.user.role === 'user' ? 'User Profile' : 'Admin Profile'}
+            </Title>
             <Card style={{ width: '100%' }}>
               <Form form={form} layout="vertical">
                 <Form.Item
@@ -157,9 +238,12 @@ const Profile = () => {
             </Card>
           </Space>
         </Col>
-        <Col xs={24} sm={24} md={20} xl={14} xxl={12}>
+        <Col xs={24} sm={22} md={18} xl={14} xxl={12}>
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Title level={2}>Orders</Title>
+            <Title level={2} className="text-uppercase">
+              Orders
+            </Title>
+            <Table columns={columns} dataSource={getOrdersData()} pagination={false} bordered />
           </Space>
         </Col>
       </Row>

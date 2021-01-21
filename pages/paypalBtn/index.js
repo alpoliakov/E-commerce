@@ -5,7 +5,7 @@ import { postData } from '../../utils/fetchData';
 const PaypalBtn = ({ total, address, mobile, state, dispatch }) => {
   const refPaypalBtn = useRef();
   // eslint-disable-next-line no-unused-vars,react/prop-types
-  const { cart, auth } = state;
+  const { cart, auth, orders } = state;
 
   useEffect(() => {
     // eslint-disable-next-line no-undef
@@ -34,6 +34,14 @@ const PaypalBtn = ({ total, address, mobile, state, dispatch }) => {
               }
 
               dispatch({ type: 'ADD_CART', payload: [] });
+
+              const newOrder = {
+                ...res.newOrder,
+                // eslint-disable-next-line react/prop-types
+                user: auth.user,
+              };
+              dispatch({ type: 'ADD_ORDERS', payload: [...orders, newOrder] });
+
               return dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
             });
             // This function shows a transaction success message to your buyer.

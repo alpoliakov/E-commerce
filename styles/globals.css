@@ -20,5 +20,9 @@ img {
   object-position: 0 20%;
 }
 
+.text-uppercase {
+  text-transform: uppercase;
+}
+
 @import "product.css";
 @import "detail-product.css";
