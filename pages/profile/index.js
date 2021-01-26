@@ -37,10 +37,6 @@ const Profile = () => {
     dispatch({ type: 'NOTIFY', payload: {} });
   };
 
-  if (!auth.user) {
-    return null;
-  }
-
   const handleUpdateProfile = (e) => {
     e.preventDefault();
     console.log(password);
@@ -140,6 +136,10 @@ const Profile = () => {
       },
     },
   ];
+
+  if (!auth.user) {
+    return null;
+  }
 
   return (
     <div style={{ width: '100%', marginTop: 40 }}>

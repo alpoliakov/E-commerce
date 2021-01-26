@@ -32,7 +32,11 @@ const PaypalBtn = ({ order }) => {
           return actions.order.capture().then(function (details) {
             dispatch({ type: 'NOTIFY', payload: { loading: true } });
             // eslint-disable-next-line react/prop-types
-            patchData(`order/${order._id}`, null, auth.token).then((res) => {
+            patchData(
+              `order/payment/${order._id}`,
+              { paymentId: details.payer.payer_id },
+              auth.token,
+            ).then((res) => {
               if (res.err) {
                 return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
               }
@@ -44,7 +48,9 @@ const PaypalBtn = ({ order }) => {
                   {
                     ...order,
                     paid: true,
-                    dateOfPayment: new Date().toISOString(),
+                    dateOfPayment: details.create_time,
+                    paymentId: details.payer.payer_id,
+                    method: 'Paypal',
                   },
                   'ADD_ORDERS',
                 ),

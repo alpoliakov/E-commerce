@@ -1,11 +1,48 @@
-import { Alert, Card, Image, Space, Typography } from 'antd';
+import { Alert, Card, Image, Space, Typography, Button } from 'antd';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { patchData } from '../utils/fetchData';
+import { updateItem } from '../store/Actions';
+// import { updateItem } from '../store/Actions';
 
 const { Title, Text } = Typography;
 
-const OrderDetail = ({ orderDetail }) => {
+const OrderDetail = ({ orderDetail, state, dispatch }) => {
+  const { auth, orders } = state;
+
+  const handleDelivered = (order) => {
+    dispatch({ type: 'NOTIFY', payload: { loading: true } });
+    patchData(`order/delivered/${order._id}`, null, auth.token).then((res) => {
+      if (res.err) {
+        return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+      }
+
+      const { paid, dateOfPayment, method, delivered } = res.result;
+
+      dispatch(
+        updateItem(
+          orders,
+          order._id,
+          {
+            ...order,
+            paid,
+            dateOfPayment,
+            method,
+            delivered,
+          },
+          'ADD_ORDERS',
+        ),
+      );
+
+      return dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
+    });
+  };
+
+  if (!auth.user) {
+    return null;
+  }
+
   return (
     <>
       {orderDetail.map((order, index) => (
@@ -48,9 +85,27 @@ const OrderDetail = ({ orderDetail }) => {
               }
               style={{ marginTop: 16 }}>
               {order.delivered ? (
-                <Alert message="Delivered" type="success" style={{ marginTop: 16 }} />
+                <Alert
+                  message={`Delivered on ${order.updatedAt}`}
+                  type="success"
+                  showIcon
+                  style={{ marginTop: 16 }}
+                />
               ) : (
-                <Alert message="Not delivered" type="error" style={{ marginTop: 16 }} />
+                <Alert
+                  message="Not delivered"
+                  type="error"
+                  showIcon
+                  style={{ marginTop: 16 }}
+                  action={
+                    auth.user.role === 'admin' &&
+                    !order.delivered && (
+                      <Button size="small" type="primary" onClick={() => handleDelivered(order)}>
+                        Mark as delivered
+                      </Button>
+                    )
+                  }
+                />
               )}
             </Card>
             <Card
@@ -61,14 +116,27 @@ const OrderDetail = ({ orderDetail }) => {
                 </Title>
               }
               style={{ marginTop: 16 }}>
+              <Space direction="vertical">
+                {order.method && (
+                  <Title level={5}>
+                    Method: <em>{order.method}</em>
+                  </Title>
+                )}
+                {order.paymentId && (
+                  <Title level={5}>
+                    Payment ID: <em>{order.paymentId}</em>
+                  </Title>
+                )}
+              </Space>
               {order.paid ? (
                 <Alert
                   message={`Paid on ${order.dateOfPayment}`}
                   type="success"
+                  showIcon
                   style={{ marginTop: 16 }}
                 />
               ) : (
-                <Alert message="Not paid" type="error" style={{ marginTop: 16 }} />
+                <Alert message="Not paid" type="error" showIcon style={{ marginTop: 16 }} />
               )}
             </Card>
             <Card
@@ -116,6 +184,8 @@ const OrderDetail = ({ orderDetail }) => {
 
 OrderDetail.propTypes = {
   orderDetail: PropTypes.array,
+  state: PropTypes.object,
+  dispatch: PropTypes.func,
 };
 
 export default OrderDetail;

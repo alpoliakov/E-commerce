@@ -8,9 +8,7 @@ import OrderDetail from '../../components/OrderDetail';
 import CartPayment from '../../components/CartPayment';
 
 const DetailOrder = () => {
-  // eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useContext(DataContext);
-  // eslint-disable-next-line no-unused-vars
   const { orders, auth } = state;
 
   const router = useRouter();
@@ -22,6 +20,10 @@ const DetailOrder = () => {
     setOrderDetail(newArray);
     console.log(orderDetail);
   }, [orders]);
+
+  if (!auth.user) {
+    return null;
+  }
 
   return (
     <div style={{ width: '100%', marginTop: 40 }}>
@@ -36,14 +38,16 @@ const DetailOrder = () => {
       <Row justify="center" align="center" gutter={[50, 30]}>
         <Col xs={24} sm={22} md={18} xl={14} xxl={12}>
           <Space direction="vertical" style={{ width: '100%' }}>
-            <OrderDetail orderDetail={orderDetail} />
+            <OrderDetail orderDetail={orderDetail} state={state} dispatch={dispatch} />
           </Space>
         </Col>
-        <Col xs={24} sm={22} md={18} xl={8} xxl={6}>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <CartPayment orderDetail={orderDetail} />
-          </Space>
-        </Col>
+        {auth.user.role !== 'admin' && (
+          <Col xs={24} sm={22} md={18} xl={8} xxl={6}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <CartPayment orderDetail={orderDetail} />
+            </Space>
+          </Col>
+        )}
       </Row>
     </div>
   );

@@ -42,6 +42,31 @@ export default function NavBar() {
     }, 2000);
   };
 
+  // eslint-disable-next-line no-unused-vars
+  const adminRouter = () => {
+    return (
+      <>
+        <Menu.Item key="users" align="center">
+          <Link href="/users">
+            <a>Users</a>
+          </Link>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item key="create" align="center">
+          <Link href="/create">
+            <a>Products</a>
+          </Link>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item key="categories" align="center">
+          <Link href="/categories">
+            <a>Categories</a>
+          </Link>
+        </Menu.Item>
+      </>
+    );
+  };
+
   const menu = (
     <Menu>
       <Menu.Item key="edit" align="center">
@@ -49,6 +74,8 @@ export default function NavBar() {
           <a>Edit profile</a>
         </Link>
       </Menu.Item>
+      <Menu.Divider />
+      {auth.user && auth.user.role === 'admin' && adminRouter()}
       <Menu.Divider />
       <Menu.Item key="logout" align="center">
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid,jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
