@@ -14,7 +14,6 @@ export default async (req, res) => {
 
 const deliveredOrder = async (req, res) => {
   try {
-    // eslint-disable-next-line no-unused-vars
     const result = await auth(req, res);
 
     if (result.role !== 'admin') {

@@ -60,7 +60,7 @@ const Cart = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk() {
-        dispatch(remove(cart, id));
+        dispatch(remove(cart, id, 'ADD_CART'));
       },
       onCancel() {},
     });

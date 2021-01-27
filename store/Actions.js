@@ -3,6 +3,7 @@ export const ACTIONS = {
   AUTH: 'AUTH',
   ADD_CART: 'ADD_CART',
   ADD_ORDERS: 'ADD_ORDERS',
+  ADD_USERS: 'ADD_USERS',
 };
 
 export const addToCart = (product, cart) => {
@@ -49,10 +50,10 @@ export const increase = (data, id) => {
   return { type: 'ADD_CART', payload: newData };
 };
 
-export const remove = (data, id) => {
+export const remove = (data, id, type) => {
   const newData = data.filter((item) => item._id !== id);
 
-  return { type: 'ADD_CART', payload: newData };
+  return { type: type, payload: newData };
 };
 
 export const updateItem = (data, id, post, type) => {

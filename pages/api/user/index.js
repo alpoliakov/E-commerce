@@ -9,6 +9,9 @@ export default async (req, res) => {
     case 'PATCH':
       await uploadInfo(req, res);
       break;
+    case 'GET':
+      await getUsers(req, res);
+      break;
   }
 };
 
@@ -27,6 +30,21 @@ const uploadInfo = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ err: err.message });
+    return res.status(500).json({ err: err.message });
+  }
+};
+
+const getUsers = async (req, res) => {
+  try {
+    const result = await auth(req, res);
+
+    if (result.role !== 'admin') {
+      return res.status(400).json({ err: 'Authentication is not valid!' });
+    }
+
+    const users = await Users.find().select('-password');
+    res.json({ users });
+  } catch (err) {
+    return res.status(500).json({ err: err.message });
   }
 };

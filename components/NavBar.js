@@ -36,10 +36,10 @@ export default function NavBar() {
     localStorage.removeItem('firstLogin');
     dispatch({ type: 'AUTH', payload: {} });
     dispatch({ type: 'NOTIFY', payload: { success: 'Logged out!' } });
+    router.push('/');
     setTimeout(() => {
       dispatch({ type: 'NOTIFY', payload: {} });
-      router.push('/');
-    }, 2000);
+    }, 1000);
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -71,7 +71,7 @@ export default function NavBar() {
     <Menu>
       <Menu.Item key="edit" align="center">
         <Link href="/profile">
-          <a>Edit profile</a>
+          <a>Profile</a>
         </Link>
       </Menu.Item>
       <Menu.Divider />
