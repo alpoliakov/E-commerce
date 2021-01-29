@@ -37,10 +37,9 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ err: 'Authentication is not valid!' });
     }
 
-    const { product_id, title, price, inStock, description, content, category, images } = req.body;
+    const { title, price, inStock, description, content, category, images } = req.body;
 
     if (
-      !product_id ||
       !title ||
       !price ||
       !inStock ||
@@ -52,14 +51,7 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ err: 'Please add all fields' });
     }
 
-    const product = await Products.findOne({ product_id });
-
-    if (product) {
-      return res.status(400).json({ err: 'This product already exists.' });
-    }
-
     const newProduct = new Products({
-      product_id,
       title: title.toLowerCase(),
       price,
       inStock,

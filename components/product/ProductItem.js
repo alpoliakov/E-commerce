@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Card, Divider, Typography, Space } from 'antd';
+import { Card, Divider, Typography, Space, Tooltip } from 'antd';
 import PropTypes from 'prop-types';
 import {
   ShoppingCartOutlined,
@@ -40,11 +40,15 @@ const ProductItem = ({ product }) => {
       cover={<img src={product.images[0].url} alt={product.title} className="card__img" />}
       className="card"
       actions={[
-        <EyeOutlined key="view" style={{ fontSize: 20 }} onClick={ViewProduct} />,
+        <Tooltip key="view" title="View details" color="volcano">
+          <EyeOutlined style={{ fontSize: 20 }} onClick={ViewProduct} />
+        </Tooltip>,
         !auth.user || auth.user.role !== 'admin' ? (
           <HeartOutlined key="heart" style={{ fontSize: 20 }} />
         ) : (
-          <SettingTwoTone style={{ fontSize: 20 }} onClick={EditProduct} />
+          <Tooltip title="Edit item" color="volcano">
+            <SettingTwoTone style={{ fontSize: 20 }} onClick={EditProduct} />
+          </Tooltip>
         ),
         !auth.user || auth.user.role !== 'admin' ? (
           <ShoppingCartOutlined
@@ -54,7 +58,9 @@ const ProductItem = ({ product }) => {
             disabled={product.inStock === 0 ? true : false}
           />
         ) : (
-          <DeleteTwoTone key="delete" style={{ fontSize: 20 }} twoToneColor="#eb2f96" />
+          <Tooltip title="Remove item" color="volcano">
+            <DeleteTwoTone key="delete" style={{ fontSize: 20 }} twoToneColor="#eb2f96" />
+          </Tooltip>
         ),
       ]}>
       <Meta className="card__text" title={TitleProduct} description={product.description} />

@@ -2,11 +2,17 @@ import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { getData } from '../../utils/fetchData';
 import PropTypes from 'prop-types';
-import { Image, Row, Col, Card, Divider, Space, Typography } from 'antd';
+import { Image, Row, Col, Card, Divider, Space, Typography, Tooltip } from 'antd';
 import uuid from 'react-uuid';
-import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import {
+  DeleteTwoTone,
+  HeartOutlined,
+  SettingTwoTone,
+  ShoppingCartOutlined,
+} from '@ant-design/icons';
 import { DataContext } from '../../store/GlobalState';
 import { addToCart } from '../../store/Actions';
+import { useRouter } from 'next/router';
 
 const { Meta } = Card;
 const { Title, Text } = Typography;
@@ -15,13 +21,19 @@ const DetailProduct = (props) => {
   const [product] = useState(props.product);
   const [tab, setTab] = useState(0);
   const { state, dispatch } = useContext(DataContext);
-  const { cart } = state;
+  const { cart, auth } = state;
+
+  const router = useRouter();
 
   const isActive = (index) => {
     if (tab === index) {
       return 'img__active';
     }
     return '';
+  };
+
+  const EditProduct = () => {
+    router.push(`/create/${product._id}`);
   };
 
   return (
@@ -56,13 +68,25 @@ const DetailProduct = (props) => {
         <Col xs={24} sm={20} md={10} xl={8} xxl={6}>
           <Card
             actions={[
-              <HeartOutlined key="heart" style={{ fontSize: 22 }} />,
-              <ShoppingCartOutlined
-                key="cart"
-                style={{ fontSize: 22 }}
-                onClick={() => dispatch(addToCart(product, cart))}
-                disabled={product.inStock === 0 ? true : false}
-              />,
+              !auth.user || auth.user.role !== 'admin' ? (
+                <HeartOutlined key="heart" style={{ fontSize: 20 }} />
+              ) : (
+                <Tooltip title="Edit item" color="volcano">
+                  <SettingTwoTone style={{ fontSize: 20 }} onClick={EditProduct} />
+                </Tooltip>
+              ),
+              !auth.user || auth.user.role !== 'admin' ? (
+                <ShoppingCartOutlined
+                  key="cart"
+                  style={{ fontSize: 20 }}
+                  onClick={() => dispatch(addToCart(product, cart))}
+                  disabled={product.inStock === 0 ? true : false}
+                />
+              ) : (
+                <Tooltip title="Remove item" color="volcano">
+                  <DeleteTwoTone key="delete" style={{ fontSize: 20 }} twoToneColor="#eb2f96" />
+                </Tooltip>
+              ),
             ]}>
             <Meta
               className="card__text"

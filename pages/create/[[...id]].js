@@ -4,14 +4,14 @@ import Head from 'next/head';
 import { Row, Form, Input, Button, Col, Space, InputNumber, Select, Upload, Modal } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { imageUpload } from '../../utils/imageUpload';
-import { postData, getData } from '../../utils/fetchData';
+import { postData, getData, putData } from '../../utils/fetchData';
 import { useRouter } from 'next/router';
+import uuid from 'react-uuid';
 
 const { Option } = Select;
 
 const ProductsManager = () => {
   const initialState = {
-    product_id: '',
     title: '',
     price: 0,
     inStock: 0,
@@ -25,7 +25,7 @@ const ProductsManager = () => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [form] = Form.useForm();
 
-  const { product_id, title, price, inStock, description, content, category } = product;
+  const { title, price, inStock, description, content, category } = product;
 
   const { state, dispatch } = useContext(DataContext);
   const { categories, auth } = state;
@@ -78,14 +78,28 @@ const ProductsManager = () => {
       if (item.url) {
         return item;
       } else {
-        item.url = URL.createObjectURL(item.originFileObj);
-        return item;
+        return item.originFileObj;
       }
     });
-    console.log(result);
+
     setImages(result);
 
     return e && e.fileList;
+  };
+
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      dispatch({ type: 'NOTIFY', payload: { error: 'You can only upload JPG/PNG file!' } });
+    }
+
+    const isLt1M = file.size / 1024 / 1024 < 1;
+    if (!isLt1M) {
+      dispatch({ type: 'NOTIFY', payload: { error: 'Image must smaller than 1MB!' } });
+    }
+
+    dispatch({ type: 'NOTIFY', payload: {} });
+    return isJpgOrPng && isLt1M;
   };
 
   useEffect(() => {
@@ -95,7 +109,7 @@ const ProductsManager = () => {
         setProduct(res.product);
         const imagesArr = [...res.product.images];
         imagesArr.forEach((img) => {
-          img.uid = img.public_id;
+          img.uid = uuid();
           img.status = 'done';
         });
         setImages(imagesArr);
@@ -115,7 +129,6 @@ const ProductsManager = () => {
     }
 
     if (
-      !product_id ||
       !title ||
       !price ||
       !inStock ||
@@ -137,16 +150,23 @@ const ProductsManager = () => {
       media = await imageUpload(imgNewUrl);
     }
 
-    const res = await postData(
-      'product',
-      { ...product, images: [...imgOldUrl, ...media] },
-      auth.token,
-    );
+    let res;
+    if (onEdit) {
+      res = await putData(
+        `product/${id}`,
+        { ...product, images: [...imgOldUrl, ...media] },
+        auth.token,
+      );
 
-    console.log(res);
+      if (res.err) {
+        return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+      }
+    } else {
+      res = await postData('product', { ...product, images: [...imgOldUrl, ...media] }, auth.token);
 
-    if (res.err) {
-      return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+      if (res.err) {
+        return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+      }
     }
 
     return dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
@@ -161,16 +181,6 @@ const ProductsManager = () => {
         <Form form={form} layout="vertical" style={{ width: '80%' }} onFinish={handleSubmit}>
           <Row justify="space-between">
             <Col xs={24} sm={20} md={15} xl={11} xxl={11}>
-              {!onEdit && (
-                <Form.Item name="product_id" label="Product Id" rules={[{ required: true }]}>
-                  <Input
-                    name="product_id"
-                    placeholder="Product Id"
-                    value={product_id}
-                    onChange={handleChangeInput}
-                  />
-                </Form.Item>
-              )}
               <Form.Item name="title" label="Title" rules={[{ required: true }]}>
                 <Input
                   name="title"
@@ -253,7 +263,7 @@ const ProductsManager = () => {
                     listType="picture-card"
                     multiple={true}
                     onPreview={handlePreview}
-                    // showUploadList={false}
+                    beforeUpload={beforeUpload}
                     accept="image/*">
                     <p className="ant-upload-drag-icon">
                       <InboxOutlined />
@@ -263,18 +273,6 @@ const ProductsManager = () => {
                   </Upload.Dragger>
                 </Form.Item>
               </Form.Item>
-              {/*<Row wrap>*/}
-              {/*  {images.map((img, index) => (*/}
-              {/*    <img*/}
-              {/*      src={img.url ? img.url : URL.createObjectURL(img)}*/}
-              {/*      alt=""*/}
-              {/*      key={index}*/}
-              {/*      role="presentation"*/}
-              {/*      className="img__detail_product"*/}
-              {/*      style={{ height: '100px', width: '25%' }}*/}
-              {/*    />*/}
-              {/*  ))}*/}
-              {/*</Row>*/}
               <Modal visible={previewVisible} width="60%" footer={null} onCancel={handleCancel}>
                 <img alt="example" style={{ width: '100%' }} src={previewImage} />
               </Modal>
@@ -283,7 +281,7 @@ const ProductsManager = () => {
           <Row>
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Create
+                {onEdit ? 'Update' : 'Create'}
               </Button>
             </Form.Item>
           </Row>
