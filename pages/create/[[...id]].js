@@ -19,6 +19,7 @@ const ProductsManager = () => {
     content: '',
     category: '',
   };
+
   const [product, setProduct] = useState(initialState);
   const [images, setImages] = useState([]);
   const [previewImage, setPreviewImage] = useState('');

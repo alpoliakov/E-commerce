@@ -56,7 +56,7 @@ const Users = () => {
       key: 'id',
       // eslint-disable-next-line react/display-name
       render: (text) => (
-        <Link href={`/user/${text}`}>
+        <Link href="#!">
           <a>{text}</a>
         </Link>
       ),

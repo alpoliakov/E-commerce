@@ -15,7 +15,6 @@ const Categories = () => {
   const { confirm } = Modal;
 
   const { state, dispatch } = useContext(DataContext);
-  // eslint-disable-next-line no-unused-vars
   const { categories, auth } = state;
 
   const createCategory = async () => {
@@ -72,6 +71,7 @@ const Categories = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk() {
+        dispatch({ type: 'NOTIFY', payload: { loading: true } });
         deleteData(`categories/${id}`, auth.token).then((res) => {
           if (res.err) {
             return dispatch({ type: 'NOTIFY', payload: { error: res.err } });

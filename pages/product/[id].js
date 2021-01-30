@@ -1,11 +1,12 @@
 import React, { useState, useContext } from 'react';
 import Head from 'next/head';
-import { getData } from '../../utils/fetchData';
+import { deleteData, getData } from '../../utils/fetchData';
 import PropTypes from 'prop-types';
-import { Image, Row, Col, Card, Divider, Space, Typography, Tooltip } from 'antd';
+import { Image, Row, Col, Card, Divider, Space, Typography, Tooltip, Modal } from 'antd';
 import uuid from 'react-uuid';
 import {
   DeleteTwoTone,
+  ExclamationCircleOutlined,
   HeartOutlined,
   SettingTwoTone,
   ShoppingCartOutlined,
@@ -16,6 +17,7 @@ import { useRouter } from 'next/router';
 
 const { Meta } = Card;
 const { Title, Text } = Typography;
+const { confirm } = Modal;
 
 const DetailProduct = (props) => {
   const [product] = useState(props.product);
@@ -34,6 +36,36 @@ const DetailProduct = (props) => {
 
   const EditProduct = () => {
     router.push(`/create/${product._id}`);
+  };
+
+  const handleDeleteProduct = (data, id, name) => {
+    confirm({
+      title: <Title level={4}>Remove this Product?</Title>,
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <Space direction="vertical">
+          <Text>Are you sure you want to remove the following product?</Text>
+          <Title level={5} style={{ textTransform: 'capitalize' }}>
+            {name}
+          </Title>
+        </Space>
+      ),
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk() {
+        dispatch({ type: 'NOTIFY', payload: { loading: true } });
+        deleteData(`product/${id}`, auth.token).then((res) => {
+          if (res.err) {
+            return dispatch({ type: 'NOTIFY', payload: { error: res.err } });
+          }
+
+          dispatch({ type: 'NOTIFY', payload: { success: res.msg } });
+          return router.push('/');
+        });
+      },
+      onCancel() {},
+    });
   };
 
   return (
@@ -84,7 +116,12 @@ const DetailProduct = (props) => {
                 />
               ) : (
                 <Tooltip title="Remove item" color="volcano">
-                  <DeleteTwoTone key="delete" style={{ fontSize: 20 }} twoToneColor="#eb2f96" />
+                  <DeleteTwoTone
+                    key="delete"
+                    style={{ fontSize: 20 }}
+                    onClick={() => handleDeleteProduct(product, product._id, product.title)}
+                    twoToneColor="#eb2f96"
+                  />
                 </Tooltip>
               ),
             ]}>

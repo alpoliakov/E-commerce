@@ -3,8 +3,8 @@ import { Spin, Alert } from 'antd';
 
 const Loading = () => {
   return (
-    <Spin tip="Loading...">
-      <Alert message="Loading..." type="info" />
+    <Spin centered tip="Loading...">
+      <Alert message="Loading page" type="info" />
     </Spin>
   );
 };

@@ -18,7 +18,6 @@ const DetailOrder = () => {
   useEffect(() => {
     const newArray = orders.filter((order) => order._id === router.query.id);
     setOrderDetail(newArray);
-    console.log(orderDetail);
   }, [orders]);
 
   if (!auth.user) {

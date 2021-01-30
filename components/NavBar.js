@@ -25,7 +25,6 @@ const SignIn = () => {
 };
 
 export default function NavBar() {
-  // eslint-disable-next-line no-unused-vars
   const { state, dispatch } = useContext(DataContext);
   const { auth, cart } = state;
   const router = useRouter();
