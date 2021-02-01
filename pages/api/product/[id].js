@@ -59,7 +59,7 @@ const updateProduct = async (req, res) => {
     await Products.findOneAndUpdate(
       { _id: id },
       {
-        title,
+        title: title.toLowerCase(),
         price,
         inStock,
         description,

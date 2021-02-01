@@ -7,6 +7,8 @@ import ProductItem from '../components/product/ProductItem';
 import { Switch, Button, Space, Tooltip, Modal, Typography } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
+import Filter from '../components/Filter';
+import filterSearch from '../utils/filterSearch';
 
 const { confirm } = Modal;
 const { Title, Text } = Typography;
@@ -14,6 +16,7 @@ const { Title, Text } = Typography;
 const Home = (props) => {
   const [products, setProducts] = useState(props.products);
   const [isCheck, setIsCheck] = useState(false);
+  const [page, setPage] = useState(1);
 
   const router = useRouter();
   const { state, dispatch } = useContext(DataContext);
@@ -22,6 +25,11 @@ const Home = (props) => {
   useEffect(() => {
     setProducts(props.products);
   }, [props.products]);
+
+  useEffect(() => {
+    if (Object.keys(router.query).length === 0) setPage(1);
+    filterSearch({ router, page: page });
+  }, [router.query]);
 
   const handleCheck = (id) => {
     products.forEach((product) => {
@@ -80,8 +88,9 @@ const Home = (props) => {
       <Head>
         <title>Home page</title>
       </Head>
+      <Filter state={state} />
       {auth.user && auth.user.role === 'admin' && (
-        <Space style={{ margin: '40px 0 0 20px' }}>
+        <Space style={{ margin: '20px 0 0 20px' }}>
           <Switch onChange={handleCheckAll} checked={isCheck}></Switch>
           <Tooltip key="view" title={isCheck && 'Remove selected items'} color="volcano">
             <Button type="danger" disabled={!isCheck} onClick={() => handleDeleteAll()}>
@@ -108,8 +117,15 @@ Home.propTypes = {
   products: PropTypes.array,
 };
 
-export async function getServerSideProps() {
-  const res = await getData('product');
+export async function getServerSideProps({ query }) {
+  const page = query.page || 1;
+  const category = query.category || 'all';
+  const sort = query.sort || '';
+  const search = query.search || 'all';
+
+  const res = await getData(
+    `product?limit=${page}&category=${category}&sort=${sort}&title=${search}`,
+  );
 
   return {
     props: {
